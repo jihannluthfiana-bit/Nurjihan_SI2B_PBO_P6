@@ -2,48 +2,62 @@
 class Karyawan {
     public $nama;
     public $golongan;
-    public $jamLembur;
-    public $totalGaji;
+    public $lembur;
+    public $gajiPokok;
+    private $upahLembur = 15000; // variabel biasa, bukan const
 
-    public function __construct($nama, $golongan, $jamLembur) {
+    public function __construct($nama, $golongan, $lembur) {
         $this->nama = $nama;
         $this->golongan = $golongan;
-        $this->jamLembur = $jamLembur;
+        $this->lembur = $lembur;
+        $this->gajiPokok = $this->getGajiPokok($golongan);
 
-        // tentukan gaji pokok sesuai golongan
-        $gajiPokok = 0;
-        if ($golongan == "I") {
-            $gajiPokok = 3000000;
-        } elseif ($golongan == "II") {
-            $gajiPokok = 4000000;
-        } elseif ($golongan == "III") {
-            $gajiPokok = 5000000;
-        }
+        echo "Constructor : Data Karyawan '$this->nama' dibuat.\n";
+    }
 
-        // hitung total gaji
-        $this->totalGaji = $gajiPokok + ($jamLembur * 20000);
+    public function getGajiPokok($golongan) {
+        $gaji = [
+            "Ib"=>1250000, "Ic"=>1300000, "Id"=>1350000,
+            "IIa"=>2000000, "IIb"=>2100000, "IIc"=>2200000, "IId"=>2300000,
+            "IIIa"=>2400000, "IIIb"=>2500000, "IIIc"=>2600000, "IIId"=>2700000,
+            "IVa"=>2800000, "IVb"=>2900000, "IVc"=>3000000, "IVd"=>3100000
+        ];
+        return isset($gaji[$golongan]) ? $gaji[$golongan] : 0;
+    }
+
+    public function getTotalGaji() {
+        return $this->gajiPokok + ($this->lembur * $this->upahLembur);
     }
 
     public function getInfo() {
-        return "Nama        : " . $this->nama . "\n" .
-               "Golongan    : " . $this->golongan . "\n" .
-               "Jam Lembur  : " . $this->jamLembur . "\n" .
-               "Total Gaji  : " . $this->totalGaji . "\n";
+        return $this->nama . "\t" .
+               $this->golongan . "\t" .
+               $this->lembur . "\t" .
+               "Rp " . number_format($this->getTotalGaji(), 0, ',', '.');
+    }
+
+    public function __destruct() {
+        echo "Destructor : Data Karyawan '$this->nama' dihapus.\n";
     }
 }
 
-// input dari user lewat CLI
-echo "Masukkan Nama     : ";
-$nama = trim(fgets(STDIN));
+echo "Masukkan jumlah karyawan: ";
+$jml = (int)trim(fgets(STDIN));
 
-echo "Masukkan Golongan (I/II/III): ";
-$golongan = trim(fgets(STDIN));
+$daftar = [];
 
-echo "Masukkan Jam Lembur : ";
-$jamLembur = (int)trim(fgets(STDIN));
+for ($i=1; $i <= $jml; $i++) {
+    echo "\nKaryawan ke-$i\n";
+    echo "Nama Karyawan : "; $nama = trim(fgets(STDIN));
+    echo "Golongan (contoh IIb, IIIc, IVb): "; $gol = trim(fgets(STDIN));
+    echo "Total Jam Lembur : "; $jam = (int)trim(fgets(STDIN));
 
-$karyawan = new Karyawan($nama, $golongan, $jamLembur);
+    $k = new Karyawan($nama, $gol, $jam);
+    $daftar[] = $k;
+}
 
-echo "\n===== DATA GAJI KARYAWAN =====\n";
-echo $karyawan->getInfo();
+echo "\nNama\tGolongan\tLembur\tTotal Gaji\n";
+foreach ($daftar as $k) {
+    echo $k->getInfo() . "\n";
+}
 ?>
